@@ -21,7 +21,9 @@ var port string
 var index string
 var source string
 var skip int
-var verbose string
+var ssl bool
+var verbose bool
+var tr *http.Transport
 
 func main() {
 	flag.StringVar(&hecServer, "h", "127.0.0.1", `host IP, Example -h="192.168.0.33"`)
@@ -31,21 +33,12 @@ func main() {
 	flag.StringVar(&index, "i", "main", `Sets index, Example -p="main"`)
 	flag.StringVar(&source, "s", "lilbigdata", `Sets source, Example -p="hax"`)
 	flag.IntVar(&skip, "skip", 0, `Skips specified lines, Example -skip=4`)
-	flag.StringVar(&verbose, "v", "false", `Turns on verbose mode, Example -v="true"`)
+	v := flag.Bool("v", false, `Turns on verbose mode, Example -v`)
+	s := flag.Bool("ssl", false, `enables ssl verify, Example -ssl`)
 	flag.Parse()
+	verbose = *v
+	ssl = *s
 	hecURL = fmt.Sprintf("https://%s:%s/services/collector", hecServer, port)
-
-	/* //unable to get this to work with multiple lines. ping google.com for example triggers this.
-	info, err := os.Stdin.Stat()
-	if err != nil {
-		panic(err)
-	}
-	if info.Mode()&os.ModeCharDevice != 0 || info.Size() <= 0 {
-		fmt.Println("The command is intended to work with pipes.")
-		fmt.Println("Usage: echo 'mirp' | datas")
-		return
-	}
-	*/
 
 	reader := bufio.NewReader(os.Stdin)
 	var output []rune
@@ -62,7 +55,7 @@ func main() {
 		if input == r || input == n {
 			text = string(output)
 			if skip != 0 {
-				if verbose != "false" {
+				if verbose {
 					log.Println("skipped line ", skip)
 				}
 				skip = skip - 1
@@ -79,16 +72,24 @@ func main() {
 }
 
 func hecSend(text string) {
-	tr := &http.Transport{
-		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+	switch ssl {
+	case true:
+		tr = &http.Transport{
+			TLSClientConfig: &tls.Config{InsecureSkipVerify: false},
+		}
+	case false:
+		tr = &http.Transport{
+			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+		}
 	}
+
 	client := &http.Client{Transport: tr}
 	if text == " " {
 		return
 	}
 	format := fmt.Sprintf(`{"sourcetype" : "%s", "source" : "%s", "index" : "%s", "event" : "%s"}`, sourceType, source, index, text)
-	if verbose != "false" {
-		log.Println("sending ", format)
+	if verbose {
+		log.Println("sending: ", format)
 	}
 	body := strings.NewReader(format)
 	req, err := http.NewRequest("POST", hecURL, body)
@@ -104,8 +105,8 @@ func hecSend(text string) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	if verbose != "false" {
-		log.Println(string(bodyBytes))
+	if verbose {
+		log.Println("receive: ", string(bodyBytes))
 	}
 }
 

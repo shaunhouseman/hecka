@@ -1,8 +1,8 @@
-# HECka
+# Hecka
 
-A simple binary for piping to Splunk.
+A simple binary for piping to Splunk and a simple docker container to recieve them.
 
-## Arguments
+### Arguments
 
 ```bash
 Usage of hecka:
@@ -24,7 +24,7 @@ Usage of hecka:
         Turns on verbose mode, Example -v="true" (default "false")
 ```
 
-## Setup
+### Hecka Setup
 
 ```bash
  go build hecka.go
@@ -32,28 +32,26 @@ Usage of hecka:
  mv hecka /usr/local/bin/hecka
  ```
 
-# lil Big Data
+### Lil Big Data Setup
 
-Simple Splunk container.
+You'll need Docker of course. Just run the below commands.
 
-## Setup
-
-You'll need Docker
-
-```docker build -t lbd .```
-
-```docker run -d -p 8000:8000 -p 8088:8088 lbd:latest```
+```bash
+docker build -t lbd .
+docker run -d -p 8000:8000 -p 8088:8088 lbd:latest
+```
 
 Access the container here:
 
-http://127.0.0.1:8000
+[http://127.0.0.1:8000](http://127.0.0.1:8000)
 Username: admin
-Password: lilbigdata
+Password: hecka
 
 * Now you can pipe to splunk with a command like: ```ping localhost | hecka```
 
-## Developement
+* View [live results](http://127.0.0.1:8000/en-US/app/search/search?q=search%20index%3Dmain&display.page.search.mode=smart&dispatch.sample_ratio=1&workload_pool=&earliest=rt-5m&latest=rt)
+
+### Developement
 
 * Test HEC input
- 
 ```curl -k https://127.0.0.1:8088/services/collector -H 'Authorization: Splunk lilbigdata' -d '{"sourcetype": "mysourcetype", "event":"Hello, World!"}'```
