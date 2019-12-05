@@ -18,10 +18,12 @@ Usage of hecka:
         Skips specified lines, Example -skip=4
   -st string
         Manually sets sourcetype, Example -c="hax" (default "mahdata")
+  -ssl bool
+        enables ssl verify, Example -ssl (default false)
   -t string
         HEC Token, Example -t="7129b26a-c177-4705-aa5d-0eavf3b09cdf" (default "lilbigdata")
-  -v string
-        Turns on verbose mode, Example -v="true" (default "false")
+  -v bool
+        Turns on verbose mode, Example -v (default false)
 ```
 
 ### Hecka Setup
