@@ -2,6 +2,8 @@
 
 A simple binary for piping to Splunk and a simple docker container to recieve them.
 
+## [Download](https://github.com/shaunhouseman/hecka/releases)
+
 ### Arguments
 
 ```bash
@@ -46,8 +48,11 @@ docker run -d -p 8000:8000 -p 8088:8088 lbd:latest
 Access the container here:
 
 [http://127.0.0.1:8000](http://127.0.0.1:8000)
+
+```bash 
 Username: admin
-Password: hecka
+Password: heckadata
+```
 
 * Now you can pipe to splunk with a command like: ```ping localhost | hecka```
 
