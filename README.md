@@ -36,6 +36,19 @@ Usage of hecka:
  mv hecka /usr/local/bin/hecka
  ```
 
+### Usage
+
+Basic Example
+
+```bash
+ping google.com | hecka
+```
+
+Splunk Cloud Example
+```bash
+ping google.com | hecka -ssl -h="http-inputs-examplecompany.splunkcloud.com" -p="443" -s="ping" -skip=1 -t="7129b26a-c177-4705-aa5d-0eavf3b09cdf"
+```
+
 ### Lil Big Data Setup
 
 You'll need Docker of course. Just run the below commands.
