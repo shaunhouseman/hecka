@@ -46,7 +46,7 @@ ping google.com | hecka
 
 Splunk Cloud Example
 ```bash
-ping google.com | hecka -ssl -h="http-inputs-examplecompany.splunkcloud.com" -p="443" -s="ping" -skip=1 -t="7129b26a-c177-4705-aa5d-0eavf3b09cdf"
+ping google.com | hecka -ssl -h="http-inputs-deployment.splunkcloud.com" -p="443" -s="ping" -skip=1 -t="HECTOKENGOESHERE"
 ```
 
 ### Lil Big Data Setup
