@@ -55,7 +55,7 @@ You'll need Docker of course. Just run the below commands.
 
 ```bash
 docker build -t lbd .
-docker run -d -p 8000:8000 -p 8088:8088 lbd:latest
+docker run -d -p 127.0.0.1:8000:8000 -p 8088:8088 lbd:latest
 ```
 
 Access the container here:
