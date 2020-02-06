@@ -1,4 +1,4 @@
-FROM splunk/splunk:7.2
+FROM splunk/splunk:7.2.9.1
 
 EXPOSE 8000:8000
 EXPOSE 8088:8088
