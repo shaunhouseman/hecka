@@ -10,9 +10,11 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strconv"
 	"strings"
 )
 
+var filepath string
 var hecServer string
 var hecToken string
 var sourceType string
@@ -26,12 +28,13 @@ var verbose bool
 var tr *http.Transport
 
 func main() {
+	flag.StringVar(&filepath, "f", "", `Sets file, Example -f="log.txt"`)
 	flag.StringVar(&hecServer, "h", "127.0.0.1", `host IP, Example -h="192.168.0.33"`)
 	flag.StringVar(&hecToken, "t", "lilbigdata", `HEC Token, Example -t="7129b26a-c177-4705-aa5d-0eavf3b09cdf"`)
 	flag.StringVar(&sourceType, "st", "mahdata", `Manually sets sourcetype, Example -c="hax"`)
 	flag.StringVar(&port, "p", "8088", `Sets port, Example -p="443"`)
 	flag.StringVar(&index, "i", "main", `Sets index, Example -p="main"`)
-	flag.StringVar(&source, "s", "lilbigdata", `Sets source, Example -p="hax"`)
+	flag.StringVar(&source, "s", "lilbigdata", `Sets source, Example -s="hax"`)
 	flag.IntVar(&skip, "skip", 0, `Skips specified lines, Example -skip=4`)
 	v := flag.Bool("v", false, `Turns on verbose mode, Example -v`)
 	s := flag.Bool("ssl", false, `enables ssl verify, Example -ssl`)
@@ -40,34 +43,45 @@ func main() {
 	ssl = *s
 	hecURL = fmt.Sprintf("https://%s:%s/services/collector", hecServer, port)
 
-	reader := bufio.NewReader(os.Stdin)
-	var output []rune
-	var r = '\r'
-	var n = '\n'
-	var text string
-	for {
-		input, _, err := reader.ReadRune()
-		if err != nil && err == io.EOF {
-			text = string(output)
-			hecSend(text)
-			break
+	if filepath != "" {
+		file, err := os.Open(filepath)
+		checkErr(err)
+		defer file.Close()
+		scanner := bufio.NewScanner(file)
+		for scanner.Scan() {
+			s := scanner.Text()
+			hecSend(s)
 		}
-		if input == r || input == n {
-			text = string(output)
-			if skip != 0 {
-				if verbose {
-					log.Println("skipped line ", skip)
-				}
-				skip = skip - 1
-				input = ' '
-				output = nil
-			} else {
+	} else {
+		reader := bufio.NewReader(os.Stdin)
+		var output []rune
+		var r = '\r'
+		var n = '\n'
+		var text string
+		for {
+			input, _, err := reader.ReadRune()
+			if err != nil && err == io.EOF {
+				text = string(output)
 				hecSend(text)
-				input = ' '
-				output = nil
+				break
 			}
+			if input == r || input == n {
+				text = string(output)
+				if skip != 0 {
+					if verbose {
+						log.Println("skipped line ", skip)
+					}
+					skip = skip - 1
+					input = ' '
+					output = nil
+				} else {
+					hecSend(text)
+					input = ' '
+					output = nil
+				}
+			}
+			output = append(output, input)
 		}
-		output = append(output, input)
 	}
 }
 
@@ -87,7 +101,8 @@ func hecSend(text string) {
 	if text == " " {
 		return
 	}
-	format := fmt.Sprintf(`{"sourcetype" : "%s", "source" : "%s", "index" : "%s", "event" : "%s"}`, sourceType, source, index, text)
+	eventText := strconv.Quote(text)
+	format := fmt.Sprintf(`{"sourcetype" : "%s", "source" : "%s", "index" : "%s", "event" : %s}`, sourceType, source, index, eventText)
 	if verbose {
 		log.Println("sending: ", format)
 	}
