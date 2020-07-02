@@ -26,6 +26,8 @@ Usage of hecka:
         HEC Token, Example -t="7129b26a-c177-4705-aa5d-0eavf3b09cdf" (default "lilbigdata")
   -v bool
         Turns on verbose mode, Example -v (default false)
+  -f string
+        Specify a file instead of piping, Example -f="/itsbig/itsheavy/itswood.log"
 ```
 
 ### Hecka Setup
@@ -43,10 +45,15 @@ Basic Example
 ```bash
 ping google.com | hecka
 ```
+Basic File Example
+
+```bash
+hecka -f="file.log"
+```
 
 Splunk Cloud Example
 ```bash
-ping google.com | hecka -ssl -h="http-inputs-deployment.splunkcloud.com" -p="443" -s="ping" -skip=1 -t="HECTOKENGOESHERE"
+ping google.com | hecka -ssl -h="http-inputs-DEPLOYMENT.splunkcloud.com" -p="443" -s="ping" -skip=1 -t="HECTOKENGOESHERE"
 ```
 
 ### Lil Big Data Setup
